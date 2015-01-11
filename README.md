@@ -1,6 +1,6 @@
 # NAME
 
-Pulp - Kelp with extra sweeteners
+Pulp - Give your Kelp applications more juice 
 
 # DESCRIPTION
 
@@ -370,8 +370,8 @@ On installation of Pulp, you'll receive a file called `pulp`. Simply run this, p
 and it will create a working test app with minimal boilerplate so you can get started straight away. Just run it as:
 
 ```
-$ kelpx-sweet MyApp
-$ kelpx-sweet Something::With::A::Larger::Namespace
+$ pulp MyApp
+$ pulp Something::With::A::Larger::Namespace
 ```
 
 # SEE ALSO
