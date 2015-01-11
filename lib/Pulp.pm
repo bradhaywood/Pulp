@@ -287,7 +287,7 @@ sub new {
 
 =head1 NAME
 
-Pulp - Kelp with extra sweeteners
+Pulp - Give your Kelp applications more juice 
 
 =head1 DESCRIPTION
 
@@ -609,8 +609,8 @@ add a true value to the end of your file. I chose this because it just makes thi
 On installation of Pulp, you'll receive a file called C<pulp>. Simply run this, passing it the name of your module 
 and it will create a working test app with minimal boilerplate so you can get started straight away. Just run it as:
 
-  $ kelpx-sweet MyApp
-  $ kelpx-sweet Something::With::A::Larger::Namespace
+  $ pulp MyApp
+  $ pulp Something::With::A::Larger::Namespace
 
 =head1 SEE ALSO
 
