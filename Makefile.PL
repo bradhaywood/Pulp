@@ -3,7 +3,7 @@ use ExtUtils::MakeMaker;
 WriteMakefile(
     NAME            => 'Pulp',
     VERSION_FROM    => 'lib/Pulp.pm',
-    ABSTRACT        => 'Kelp Web Framework with added sweeteners',
+    ABSTRACT        => 'Give your Kelp applications extra juice',
     CONFIGURE_REQUIRES => { 'ExtUtils::MakeMaker' },
     DISTNAME        => 'Pulp',
     EXE_FILES       => [ 'bin/pulp' ],
