@@ -376,7 +376,7 @@ $ pulp Something::With::A::Larger::Namespace
 
 # SEE ALSO
 
-Kelp - [Kelp](https://metacpan.org/pod/Kelp)
+[Kelp](https://metacpan.org/pod/Kelp) - At the very heart of Pulp is Kelp, a minimalistic web framework created around [Plack](https://metacpan.org/pod/Plack). Definitely check this out. The excellent documentation will come in handy if you're using Pulp as well.
 
 # AUTHOR
 

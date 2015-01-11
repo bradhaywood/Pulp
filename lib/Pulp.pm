@@ -614,7 +614,8 @@ and it will create a working test app with minimal boilerplate so you can get st
 
 =head1 SEE ALSO
 
-Kelp - L<Kelp>
+L<Kelp> - At the very heart of Pulp is Kelp, a minimalistic web framework created around L<Plack>. Definitely check this out. The excellent documentation will come in handy if you're using Pulp as well.
+
 
 =head1 AUTHOR
 
