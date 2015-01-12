@@ -123,51 +123,62 @@ sub import {
                     if (my $ret = $mod->build(@args)) {
                         if (ref $ret) {
                             $model_tb->addRow($mod, $name);
-                            $self->{_models}->{$name} = $ret;
-                        
-                            # is this dbix::class?
-                            require mro;
-                            my $dbref = ref $ret;
-                            if (grep { $_ eq 'DBIx::Class::Schema' } @{mro::get_linear_isa($dbref)}) {
-                                if ($dbref->can('sources')) {
-                                    my $use_api = $mod->_use_api;
-                                    my @sources = $dbref->sources;
-                                    for my $source (@sources) {
-                                        $self->{_models}->{"${name}::${source}"} = $ret->resultset($source);
-                                        $model_tb->addRow("${dbref}::ResultSet::${source}", "${name}::${source}");
+                            # returned a standard hash reference
+                            if (ref $ret eq 'HASH') {
+                                foreach my $key (keys %$ret) {
+                                    if (ref $ret->{$key}) {
+                                        $self->{_models}->{"${name}::${key}"} = $ret->{$key};
+                                        $model_tb->addRow(ref $ret->{$key}, "${name}::${key}");
+                                    }
+                                }
+                            }
+                            else { 
+                                $self->{_models}->{"${name}"} = $ret;
 
-                                        if ($use_api) {
-                                            my $lc_source = lc $source;
-                                            $self->routes->add(['GET' => "/api/${lc_source}/list" ], { to => sub {
-                                                my ($aself) = @_;
-                                                my @data;
-                                                my @users = $aself->model("${name}::${source}")->all;
-                                                for my $user (@users) {
-                                                    my %usr_data = $user->get_columns;
-                                                    push @data, \%usr_data;
-                                                }
+                                # is this dbix::class?
+                                require mro;
+                                my $dbref = ref $ret;
+                                if (grep { $_ eq 'DBIx::Class::Schema' } @{mro::get_linear_isa($dbref)}) {
+                                    if ($dbref->can('sources')) {
+                                        my $use_api = $mod->_use_api;
+                                        my @sources = $dbref->sources;
+                                        for my $source (@sources) {
+                                            $self->{_models}->{"${name}::${source}"} = $ret->resultset($source);
+                                            $model_tb->addRow("${dbref}::ResultSet::${source}", "${name}::${source}");
 
-                                                return \@data;
-                                            }});
+                                            if ($use_api) {
+                                                my $lc_source = lc $source;
+                                                $self->routes->add(['GET' => "/api/${lc_source}/list" ], { to => sub {
+                                                    my ($aself) = @_;
+                                                    my @data;
+                                                    my @users = $aself->model("${name}::${source}")->all;
+                                                    for my $user (@users) {
+                                                        my %usr_data = $user->get_columns;
+                                                        push @data, \%usr_data;
+                                                    }
 
-                                            $self->routes->add(['GET' => "/api/${lc_source}/find/:id"], { to => sub {
-                                                my ($aself, $id) = @_;
-                                                my %data = $aself->model("${name}::${source}")->find($id)->get_columns;
-                                                return \%data;
-                                            }});
+                                                    return \@data;
+                                                }});
 
-                                            $self->routes->add(['GET' => "/api/${lc_source}/search"], { to => sub {
-                                                my ($aself) = @_;
-                                                my @users = $aself->model("${name}::${source}")
-                                                    ->search({ map { $_ => $aself->param($_) } $aself->param });
-                                                my @data;
-                                                for my $user (@users) {
-                                                    my %usr_data = $user->get_columns;
-                                                    push @data, \%usr_data;
-                                                }
+                                                $self->routes->add(['GET' => "/api/${lc_source}/find/:id"], { to => sub {
+                                                    my ($aself, $id) = @_;
+                                                    my %data = $aself->model("${name}::${source}")->find($id)->get_columns;
+                                                    return \%data;
+                                                }});
 
-                                                return \@data;
-                                            }});
+                                                $self->routes->add(['GET' => "/api/${lc_source}/search"], { to => sub {
+                                                    my ($aself) = @_;
+                                                    my @users = $aself->model("${name}::${source}")
+                                                        ->search({ map { $_ => $aself->param($_) } $aself->param });
+                                                    my @data;
+                                                    for my $user (@users) {
+                                                        my %usr_data = $user->get_columns;
+                                                        push @data, \%usr_data;
+                                                    }
+
+                                                    return \@data;
+                                                }});
+                                            }
                                         }
                                     }
                                 }
@@ -448,6 +459,42 @@ That's all you need. Now you can pull that model instance out at any time in you
       my @users  = $self->model('LittleDB')->table('users')->all;
       return join ', ', map { $_->name } @users;
   }
+
+=head2 Named ResultSets
+
+If you're not using DBIx::Class, you can still have similar styled resultsets. Simply return a standard hash reference instead of a blessed object 
+from the C<build> method, like so
+
+  package TestApp::Model::LittleDB;
+
+  use Pulp::Model;
+  use DBIx::Lite;
+
+  sub build {
+      my ($self, @args) = @_;
+      my $schema = DBIx::Lite->connect(@args);
+      return {
+          'User'       => $schema->table('users'),
+          'Product'    => $schema->table('products'),
+      };
+  }
+
+Then, you can do this stuff in your controllers
+
+  package TestApp::Controller::Assets;
+
+  sub users {
+      my  ($self) = @_;
+      my @users   = $self->model('LittleDB::User')->all;
+      return join "<br>", map { $_->name . " (" . $_->email . ")" } @users;
+  }
+
+  sub products {
+      my ($self) = @_;
+      my @products = $self->model('LittleDB::Product')->all;
+      return join "<br>", map { $_->name . " (" . sprintf("%.2f", $_->value) . ")" } @products;
+  }
+
 
 =head2 Models and DBIx::Class
 

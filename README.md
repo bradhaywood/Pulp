@@ -186,6 +186,45 @@ sub users {
 }
 ```
 
+## Named ResultSets
+
+If you're not using DBIx::Class, you can still have similar styled resultsets. Simply return a standard hash reference instead of a blessed object 
+from the `build` method, like so
+
+```perl
+package TestApp::Model::LittleDB;
+
+use Pulp::Model;
+use DBIx::Lite;
+
+sub build {
+    my ($self, @args) = @_;
+    my $schema = DBIx::Lite->connect(@args);
+    return {
+        'User'       => $schema->table('users'),
+        'Product'    => $schema->table('products'),
+    };
+}
+```
+
+Then, you can do this stuff in your controllers
+
+```perl
+package TestApp::Controller::Assets;
+
+sub users {
+    my  ($self) = @_;
+    my @users   = $self->model('LittleDB::User')->all;
+    return join "<br>", map { $_->name . " (" . $_->email . ")" } @users;
+}
+
+sub products {
+    my ($self) = @_;
+    my @products = $self->model('LittleDB::Product')->all;
+    return join "<br>", map { $_->name . " (" . sprintf("%.2f", $_->value) . ")" } @products;
+}
+```
+
 ## Models and DBIx::Class
 
 If you enjoy the way Catalyst handles DBIx::Class models, you're going to love this (I hope so, at least). Pulp will automagically 
