@@ -96,6 +96,9 @@ any '/omni' => sub { 'Hit me up on any request' };
 ## bridge
 
 Bridges are cool, so please check out the Kelp documentation for more information on what they do and how they work.
+If you define a bridge that has the beginning of an existing route, or routes, the bridge will always be called first.
+The bridge **must** return a true value to proceed to the next route, otherwise a 403 Not Authorised message is provided to the user.
+This can be handy for setting things in the stash to be setup for route, or checking to make sure a user is logged in.
 
 ```perl
 bridge '/users/:id' => sub {
