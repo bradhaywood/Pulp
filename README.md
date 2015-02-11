@@ -19,6 +19,13 @@ use Pulp;
 maps ['Main'];
 ```
 
+Alternatively, you can ask Pulp to just pull in every route under the the `MyApp::Route::` namespace.
+
+```perl
+package MyApp;
+use Pulp -auto => 1;
+```
+
 Yep, that's the complete code for your base. You pass `maps` an array reference of the routes you want to include. 
 It will look for them in `MyApp::Route::`. So the above example will load `MyApp::Route::Main`.
 Next, let's create that file
