@@ -15,6 +15,7 @@ sub import {
         push @{"${caller}::ISA"}, 'Kelp';
         *{"${caller}::new"} = sub { return shift->SUPER::new(@_); };
 
+        *{"${caller}::everything"} = sub { return "(.+)"; };
         *{"${caller}::get"} = sub {
             my ($name, $coderef) = @_;
             $routes->{$name} = {
