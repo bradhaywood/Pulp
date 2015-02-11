@@ -39,7 +39,12 @@ sub import {
         }
 
         # auto load routes?
-        if ($opts{"-auto"}) {
+        my @in_mods;
+        if ($opts{"extends"}) {
+            @in_mods = useall $opts{"extends"} . "::Route";
+        }
+
+        if ($opts{"-auto"} || $opts{"extends"}) {
             $auto = 1;
             my $route_tb = Text::ASCIITable->new;
             $route_tb->setCols('Routes');
@@ -47,6 +52,13 @@ sub import {
             for my $mod (@mod_routes) {
                 $route_tb->addRow($mod);
                 push @$routes, $mod->get_routes();
+            }
+
+            if (@in_mods) {
+                for my $mod (@in_mods) {
+                    $route_tb->addRow($mod);
+                    push @$routes, $mod->get_routes();
+                }
             }
 
             print $route_tb . "\n";
@@ -314,6 +326,11 @@ B<MyApp.pm>
   use Pulp;
 
   maps ['Main'];
+
+Alternatively, you can ask Pulp to just pull in every route under the the C<MyApp::Route::> namespace.
+
+  package MyApp;
+  use Pulp -auto => 1;
 
 Yep, that's the complete code for your base. You pass C<maps> an array reference of the routes you want to include. 
 It will look for them in C<MyApp::Route::>. So the above example will load C<MyApp::Route::Main>.
