@@ -113,6 +113,9 @@ sub import {
                 }
             }
                     
+            # addons
+            _load_addons($self);
+
             # models
             if ($config->{models}) {
                 $self->{_models} = {};
@@ -213,14 +216,19 @@ sub import {
             my $r = $self->routes;
             for my $route (@$routes) {
                 for my $url (keys %$route) {
+                    my $classname = $route->{$url}->{'class'};
+                    my $toroute = $route->{$url}->{coderef};
+                    $toroute = "Controller::${classname}::${toroute}"
+                        unless substr($toroute, 0, 1) eq '+';
+
                     if ($route->{$url}->{bridge}) {
-                        $r->add([ uc($route->{$url}->{type}) => $url ], { to => $route->{$url}->{coderef}, bridge => 1 });
+                        $r->add([ uc($route->{$url}->{type}) => $url ], { to => $toroute, bridge => 1 });
                     }
                     elsif ($route->{$url}->{type} eq 'any') {
-                        $r->add($url, $route->{$url}->{coderef});
+                        $r->add($url, $toroute);
                     }
                     else {
-                        $r->add([ uc($route->{$url}->{type}) => $url ], $route->{$url}->{coderef});
+                        $r->add([ uc($route->{$url}->{type}) => $url ], $toroute);
                     }
                 }
             }
@@ -302,6 +310,22 @@ sub _has {
             return $_[0]->{$acc};
         };
     }
+}
+
+sub _load_addons {
+    my ($self) = @_;
+    my $class = ref $self;
+    my $namespace = "${class}::Addon";
+    my @addons = useall $namespace;
+    my $i = 0;
+    while ($i < scalar @addons) {
+        splice @addons, 1, $i
+            unless $addons[$i]->can('pulp_addon') and $addons[$i] !~ /::Route::/g;
+        $i += 1;
+    }
+
+    print "[Addons] Detected " . scalar @addons . " addons\n";
+    print join ', ', @addons;
 }
 
 sub new {
