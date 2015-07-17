@@ -3,7 +3,9 @@
 use warnings;
 use strict;
 use 5.010;
-
+use File::ShareDir 'module_dir';
+use File::Copy;
+use Cwd qw(getcwd abs_path);
 eval "use Kelp;";
 if ($@) {
     die "Please make sure Kelp is successfully installed and try again\nError: $@";
@@ -11,6 +13,9 @@ if ($@) {
 
 die "Usage: <module>\n"
     unless $ARGV[0];
+
+use Pulp;
+my $mod_dir = abs_path(module_dir('Pulp'));
 
 my $module = $ARGV[0];
 my $file   = $module;
@@ -50,8 +55,101 @@ say "=> Wrote ${path}/Route/Main.pm";
 open my $cont, '+>', "${path}/Controller/Main.pm" or die "Could not open ${path}/Controller/Main.pm: $!";
 say $cont "package ${module}::Controller::Main;\n";
 say $cont "use Pulp::Controller;\n";
-say $cont "sub hello { 'Hello, world!' }";
+say $cont <<EOT;
+
+sub hello {
+    my (\$self) = \@_;
+    \$self->detach; # views/hello.tt
+}
+EOT
+
 close $cont;
 
 say "=> Wrote ${path}/Controller/Main.pm";
 
+say "=> Creating config.pl";
+unlink "conf/config.pl";
+open my $conf, '+>', "conf/config.pl" or die "Could not open conf/config.pl: $!";
+say $conf <<EOT;
+{
+    modules      => [qw/Template::Toolkit JSON Logger/],
+    middleware      => [qw/Static/],
+    middleware_init => {
+        Static => {
+            path => qr{^/assets/},
+            root => '.',
+        }
+    },
+    modules_init => {
+
+        # One log for errors and one for debug
+        Logger => {
+            outputs => [
+                [
+                    'File',
+                    name      => 'debug',
+                    filename  => 'log/debug.log',
+                    min_level => 'debug',
+                    mode      => '>>',
+                    newline   => 1,
+                    binmode   => ":encoding(UTF-8)"
+                ], [
+                    'File',
+                    name      => 'error',
+                    filename  => 'log/error.log',
+                    min_level => 'error',
+                    mode      => '>>',
+                    newline   => 1,
+                    binmode   => ":encoding(UTF-8)"
+                ],
+            ]
+        },
+
+        # JSON prints pretty
+        JSON => {
+            pretty => 1
+        },
+
+        'Template::Toolkit' => {
+          ENCODING => 'utf8',
+          INCLUDE_PATH => [qw{./views}],
+          RELATIVE => 1,
+          TAG_STYLE => 'asp',
+        },
+    }
+};
+EOT
+close $conf;
+say "=> Working on views";
+unlink "views/home.tt";
+open my $view, '+>', "views/hello.tt" or die "Could not open views/hello.tt: $!";
+say $view <<EOT;
+<!doctype html>
+<html lang="en">
+    <head>
+        <title>Welcome to Pulp!</title>
+        <link rel="stylesheet" href="/assets/css/pulp.css" type="text/css">
+    </head>
+    <body>
+        <div class="container">
+            <div class="row">
+                <div class="col-twelve">
+                    <h1>Welcome to your Pulp app!</h1>
+                    <p>You have successfully created a new Pulp app.</p>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>
+EOT
+close $view;
+
+say "=> Creating assets";
+mkdir "assets";
+mkdir "assets/css";
+my $copy_css = "${mod_dir}/css/pulp.css";
+say "=> Copying ${copy_css} -> assets/css/pulp.css";
+#system("touch assets/css/pulp.css");
+if (system("cp ${copy_css} assets/css/pulp.css")) {
+    say "=> Copy successful";
+}
