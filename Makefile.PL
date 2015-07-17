@@ -12,6 +12,9 @@ WriteMakefile(
         'Kelp::Test' => 0,
         'Kelp::Module::Template::Toolkit' => 0,
         'DBIx::Class' => 0,
+        'File::ShareDir' => 0,
+        'Cwd' => 0,
+        'Plack::Middleware::Static',
     },
 
     PREREQ_PM       => {
