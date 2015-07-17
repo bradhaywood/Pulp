@@ -7,8 +7,6 @@ use true;
 sub import {
     my $routes = {};
     my $caller = caller;
-    my @classarr = split '::', $caller;
-    my $class = $classarr[$#classarr]; 
     strict->import();
     warnings->import();
     true->import();
@@ -22,7 +20,6 @@ sub import {
             my ($name, $coderef) = @_;
             $routes->{$name} = {
                 type    => 'get',
-                class   => $class,
                 coderef => $coderef,
             };
         };
@@ -31,7 +28,6 @@ sub import {
             my ($name, $coderef) = @_;
             $routes->{$name} = {
                 type    => 'post',
-                class   => $class,
                 coderef => $coderef,
             };
         };
@@ -40,7 +36,6 @@ sub import {
             my ($name, $coderef) = @_;
             $routes->{$name} = {
                 type    => 'any',
-                class   => $class,
                 coderef => $coderef,
             };
         };
@@ -50,7 +45,6 @@ sub import {
             $type //= 'get';
             $routes->{$name} = {
                type     => $type,
-               class    => $class,
                coderef  => $coderef,
                bridge   => 1,
             };
