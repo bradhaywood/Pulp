@@ -39,7 +39,7 @@ close $core;
 
 say "=> Wrote ${path}.pm";
 
-open my $route, '+>', "${path}/Route/Main.pm" or die "Could not open ${path}/Route/Main/pm: $!";
+open my $route, '+>', "${path}/Route/Main.pm" or die "Could not open ${path}/Route/Main.pm: $!";
 say $route "package ${module}::Route::Main;\n";
 say $route "use Pulp::Route;\n";
 say $route "get '/' => 'Controller::Main::hello';";
