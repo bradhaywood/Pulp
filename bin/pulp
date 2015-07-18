@@ -150,6 +150,9 @@ mkdir "assets/css";
 my $copy_css = "${mod_dir}/css/pulp.css";
 say "=> Copying ${copy_css} -> assets/css/pulp.css";
 #system("touch assets/css/pulp.css");
-if (system("cp ${copy_css} assets/css/pulp.css")) {
+if (copy $copy_css, "assets/css/pulp.css") {
     say "=> Copy successful";
+}
+else {
+    say "x> $!";
 }
