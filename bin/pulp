@@ -59,6 +59,7 @@ say $cont <<EOT;
 
 sub hello {
     my (\$self) = \@_;
+    \$self->stash->{title} = "Welcome to Pulp!";
     \$self->detach; # views/hello.tt
 }
 EOT
@@ -115,32 +116,56 @@ say $conf <<EOT;
           INCLUDE_PATH => [qw{./views}],
           RELATIVE => 1,
           TAG_STYLE => 'asp',
+          WRAPPER   => 'wrapper.tt',
         },
     }
 };
 EOT
 close $conf;
+say "=> Creating wrapper";
+open my $wrapper, '+>', "views/wrapper.tt" or die "Could not open views/wrapper.tt: $!";
+say $wrapper <<EOT;
+<!doctype html>
+<html lang="en">
+    <head>
+        <title><% title %></title>
+        <link rel="stylesheet" href="/assets/css/pulp.css" type="text/css">
+        <style type="text/css">
+            body {
+                margin-top: 20px;
+                background: #ced8f6;
+            }
+
+            .content-box {
+                margin: 0 auto;
+                width: 50%;
+                padding: 15px 15px 15px 30px;
+                background: #fff;
+                border-radius: 20px;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <% content %>
+        </div>
+    </body>
+</html>
+EOT
+close $wrapper;
+
 say "=> Working on views";
 unlink "views/home.tt";
 open my $view, '+>', "views/hello.tt" or die "Could not open views/hello.tt: $!";
 say $view <<EOT;
-<!doctype html>
-<html lang="en">
-    <head>
-        <title>Welcome to Pulp!</title>
-        <link rel="stylesheet" href="/assets/css/pulp.css" type="text/css">
-    </head>
-    <body>
-        <div class="container">
-            <div class="row">
-                <div class="col-twelve">
-                    <h1>Welcome to your Pulp app!</h1>
-                    <p>You have successfully created a new Pulp app.</p>
-                </div>
-            </div>
+<div class="row">
+    <div class="col-twelve">
+        <div class="content-box">
+            <h1>Welcome to Pulp!</h1>
+            <p>You have successfully created a new Pulp app.</p>
         </div>
-    </body>
-</html>
+    </div>
+</div>
 EOT
 close $view;
 
