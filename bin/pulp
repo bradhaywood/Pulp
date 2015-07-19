@@ -129,6 +129,7 @@ say $wrapper <<EOT;
 <html lang="en">
     <head>
         <title><% title %></title>
+        <link rel="icon" type="image/png" href="/assets/img/favicon.png">
         <link rel="stylesheet" href="/assets/css/pulp.css" type="text/css">
         <style type="text/css">
             body {
@@ -172,10 +173,19 @@ close $view;
 say "=> Creating assets";
 mkdir "assets";
 mkdir "assets/css";
+mkdir "assets/img";
+my $copy_fav = "${mod_dir}/img/favicon.png";
 my $copy_css = "${mod_dir}/css/pulp.css";
 say "=> Copying ${copy_css} -> assets/css/pulp.css";
 #system("touch assets/css/pulp.css");
 if (copy $copy_css, "assets/css/pulp.css") {
+    say "=> Copy successful";
+}
+else {
+    say "x> $!";
+}
+say "=> Copying ${copy_fav} -> assets/img/favicon.png";
+if (copy $copy_fav, "assets/img/favicon.png") {
     say "=> Copy successful";
 }
 else {
