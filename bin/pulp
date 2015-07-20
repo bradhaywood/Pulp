@@ -68,6 +68,7 @@ close $cont;
 
 say "=> Wrote ${path}/Controller/Main.pm";
 
+mkdir "${path}/Model";
 say "=> Creating config.pl";
 unlink "conf/config.pl";
 open my $conf, '+>', "conf/config.pl" or die "Could not open conf/config.pl: $!";
