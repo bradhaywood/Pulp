@@ -10,11 +10,6 @@ WriteMakefile(
     TEST_REQUIRES   => {
         'Test::More' => 0,
         'Kelp::Test' => 0,
-        'Kelp::Module::Template::Toolkit' => 0,
-        'DBIx::Class' => 0,
-        'File::ShareDir' => 0,
-        'Cwd' => 0,
-        'Plack::Middleware::Static',
     },
 
     PREREQ_PM       => {
@@ -23,5 +18,11 @@ WriteMakefile(
         'true'      => 0,
         'Text::ASCIITable' => 0,
         'Module::Find' => 0,
+        'Kelp::Module::Template::Toolkit' => 0,
+        'DBIx::Class' => 0,
+        'File::ShareDir' => 0,
+        'Cwd' => 0,
+        'Plack::Middleware::Static',
+        'true' => 0,
     },        
 );
