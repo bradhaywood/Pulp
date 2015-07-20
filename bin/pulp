@@ -143,6 +143,7 @@ say $wrapper <<EOT;
                 padding: 15px 15px 15px 30px;
                 background: #fff;
                 border-radius: 20px;
+                margin-bottom: 15px;
             }
         </style>
     </head>
