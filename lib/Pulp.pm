@@ -213,14 +213,16 @@ sub import {
             my $r = $self->routes;
             for my $route (@$routes) {
                 for my $url (keys %$route) {
+                    my $clean_url = $url;
+                    $clean_url =~ s/_(POST|GET|ANY|BRIDGE)$//gi;
                     if ($route->{$url}->{bridge}) {
-                        $r->add([ uc($route->{$url}->{type}) => $url ], { to => $route->{$url}->{coderef}, bridge => 1 });
+                        $r->add([ uc($route->{$url}->{type}) => $clean_url ], { to => $route->{$url}->{coderef}, bridge => 1 });
                     }
                     elsif ($route->{$url}->{type} eq 'any') {
-                        $r->add($url, $route->{$url}->{coderef});
+                        $r->add($clean_url, $route->{$url}->{coderef});
                     }
                     else {
-                        $r->add([ uc($route->{$url}->{type}) => $url ], $route->{$url}->{coderef});
+                        $r->add([ $route->{$url}->{type} => $clean_url ], $route->{$url}->{coderef});
                     }
                 }
             }

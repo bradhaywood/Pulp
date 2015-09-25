@@ -18,23 +18,23 @@ sub import {
         *{"${caller}::everything"} = sub { return "(.+)"; };
         *{"${caller}::get"} = sub {
             my ($name, $coderef) = @_;
-            $routes->{$name} = {
-                type    => 'get',
+            $routes->{$name . '_GET'} = {
+                type    => 'GET',
                 coderef => $coderef,
             };
         };
 
         *{"${caller}::post"} = sub {
             my ($name, $coderef) = @_;
-            $routes->{$name} = {
-                type    => 'post',
+            $routes->{$name . '_POST'} = {
+                type    => 'POST',
                 coderef => $coderef,
             };
         };
 
         *{"${caller}::any"} = sub {
             my ($name, $coderef) = @_;
-            $routes->{$name} = {
+            $routes->{$name . '_ANY'} = {
                 type    => 'any',
                 coderef => $coderef,
             };
@@ -43,7 +43,7 @@ sub import {
         *{"${caller}::bridge"} = sub {
             my ($name, $coderef, $type) = @_;
             $type //= 'get';
-            $routes->{$name} = {
+            $routes->{$name . '_BRIDGE'} = {
                type     => $type,
                coderef  => $coderef,
                bridge   => 1,
